@@ -1,12 +1,16 @@
 package com.example.calorie;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,7 +23,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
 	public static final String IMAGE_DIRECTORY_NAME = "calorie upload";
-	
+
 	public static final int MEDIA_TYPE_IMAGE = 1;
 
 	private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
@@ -92,7 +96,8 @@ public class MainActivity extends Activity {
 
 	private static File getOutputMediaFile(int type) {
 
-		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), IMAGE_DIRECTORY_NAME);
+		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+				IMAGE_DIRECTORY_NAME);
 		if (!mediaStorageDir.exists()) {
 			if (!mediaStorageDir.mkdirs()) {
 				return null;
@@ -103,11 +108,42 @@ public class MainActivity extends Activity {
 		File mediaFile;
 		if (type == MEDIA_TYPE_IMAGE) {
 			mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
-		}else {
+		} else {
 			return null;
 		}
 
 		return mediaFile;
 	}
 
+	public static void createThumbnail(Bitmap bitmap, String strFilePath, String filename) {
+
+		File file = new File(strFilePath);
+
+		if (!file.exists()) {
+			file.mkdirs();
+			// Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
+		}
+		File fileCacheItem = new File(strFilePath + filename);
+		OutputStream out = null;
+
+		try {
+
+			int height = bitmap.getHeight();
+			int width = bitmap.getWidth();
+
+			fileCacheItem.createNewFile();
+			out = new FileOutputStream(fileCacheItem);
+			// 160 부분을 자신이 원하는 크기로 변경할 수 있습니다.
+			bitmap = Bitmap.createScaledBitmap(bitmap, 500, height / (width / 500), true);
+			bitmap.compress(CompressFormat.JPEG, 100, out);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				out.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
