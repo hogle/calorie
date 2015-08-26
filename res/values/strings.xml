@@ -7,5 +7,6 @@
     
     <string name="capture">사진 찍기</string>
     <string name="write">등록</string>
+    <string name="result">완료</string>
 
 </resources>

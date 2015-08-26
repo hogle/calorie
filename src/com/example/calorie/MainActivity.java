@@ -2,10 +2,30 @@ package com.example.calorie;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -22,11 +42,13 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	public static final String IMAGE_DIRECTORY_NAME = "calorie upload";
+	public static final String IMAGE_DIRECTORY_NAME = "calorieUpload";
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 
 	private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
+	
+	private static String fileName;
 
 	private Uri fileUri;
 
@@ -46,6 +68,16 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
+	
+
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+	}
+
+
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -81,6 +113,8 @@ public class MainActivity extends Activity {
 
 		if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
 			if (resultCode == RESULT_OK) {
+				
+				//imageUpload();
 				launchResultActivity(true);
 			} else if (resultCode == RESULT_CANCELED) {
 				Toast.makeText(getApplicationContext(), "취소되었습니다.", Toast.LENGTH_SHORT).show();
@@ -108,20 +142,21 @@ public class MainActivity extends Activity {
 		File mediaFile;
 		if (type == MEDIA_TYPE_IMAGE) {
 			mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
+			fileName = "IMG_" + timeStamp + ".jpg";
 		} else {
 			return null;
 		}
-
 		return mediaFile;
 	}
+	
+	
 
 	public static void createThumbnail(Bitmap bitmap, String strFilePath, String filename) {
 
 		File file = new File(strFilePath);
 
-		if (!file.exists()) {
+		if (!file.exists()) { 
 			file.mkdirs();
-			// Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
 		}
 		File fileCacheItem = new File(strFilePath + filename);
 		OutputStream out = null;
